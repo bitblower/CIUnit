@@ -1,19 +1,19 @@
 <?php
 
 /*
-* fooStack, CIUnit for CodeIgniter
-* Copyright (c) 2008-2009 Clemens Gruenberger
-* Released under the MIT license, see:
-* http://www.opensource.org/licenses/mit-license.php
-*/
+ * fooStack, CIUnit for CodeIgniter
+ * Copyright (c) 2008-2009 Clemens Gruenberger
+ * Released under the MIT license, see:
+ * http://www.opensource.org/licenses/mit-license.php
+ */
 
 trait CIUnit_Assert
 {
     public static function assertRedirects($ciOutput, $location, $message = 'Failed to assert redirect')
     {
         $haystack = $ciOutput->get_headers();
-        $needle = array("Location: " . site_url($location), TRUE);
-        $constraint = new PHPUnit_Framework_Constraint_TraversableContains($needle, TRUE);
+        $needle = array("Location: " . site_url($location), true);
+        $constraint = new PHPUnit_Framework_Constraint_TraversableContains($needle, true);
 
         self::assertThat($haystack, $constraint, $message);
     }
@@ -70,10 +70,10 @@ class CIUnit_TestCase extends PHPUnit_Framework_TestCase
      * @param    array $data
      * @param    string $dataName
      */
-    public function __construct($name = NULL, array $data = array(), $dataName = '')
+    public function __construct($name = null, array $data = array(), $dataName = '')
     {
         parent::__construct($name, $data, $dataName);
-        $this->CI =& get_instance();
+        $this->CI = &get_instance();
 
         log_message('debug', get_class($this) . ' CIUnit_TestCase initialized');
     }
@@ -110,6 +110,44 @@ class CIUnit_TestCase extends PHPUnit_Framework_TestCase
         if (!empty($this->tables)) {
             $this->dbfixt_unload($this->tables);
         }
+    }
+
+    /**
+     * Loads a MongoDB Fixture from a JSON encoded text file
+     * @param $filename - Name and path to the file. Should include an _id, and will need to be valid against its $type reference
+     * @param $ref - A CINX/MongoDB reference (ie object db & id, or cdoc)
+     * @param $type - The Type of Document: PROJECT, BOM-ITEM-QTY, etc. Will be used for template validation.
+     * @returns  MongoDoc object of the newly created document.
+     */
+    protected function addFixture($filename, $ref, $type)
+    {
+        // Create fixture object; delete if old test left one lying around
+        $this->delFixture($ref, $type);
+        if (!file_exists($filename)) {
+            throw new Exception("Can not run unit test; did not find fixture JSON doc [$filename]");
+        }
+        $json = json_decode(file_get_contents($filename));
+        if ($json === null && json_last_error() !== JSON_ERROR_NONE) {
+            throw new Exception("Given JSON doc [$filename] contains invalid JSON");
+        }
+        $doc = MongoDocFactory::MongoDoc($ref, $type, true);
+        $doc->setDoc($json);
+        return $doc;
+    }
+
+    /**
+     * Remove the given fixture from the database
+     * @param $ref - A CINX/MongoDB reference (ie object db & id, or cdoc)
+     * @param $type - The Type of Document: PROJECT, BOM-ITEM-QTY, etc.
+     */
+    protected function delFixture($ref, $type)
+    {
+        $doc = CxUtil::getCinxDoc($ref, $type);
+        if ($doc) {
+            // Copy for use in testing
+            $doc->delete();
+        }
+        return $doc;
     }
 
     /**
@@ -193,7 +231,7 @@ class CIUnit_TestCase extends PHPUnit_Framework_TestCase
     /**
      * fixture wrapper, for arbitrary number of arguments
      */
-    function fixt()
+    public function fixt()
     {
         $fixts = func_get_args();
         $this->load_fixt($fixts);
