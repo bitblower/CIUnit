@@ -134,8 +134,8 @@ class CIUnit_TestCase extends PHPUnit_Framework_TestCase
         $response = CxUtil::getResponseObject();
         $doc->setDoc($json);
         $doc->save($response);
-        if ( $response->message !== "OK" ) {
-            throw new Exception("Could not save fixture file [$filename]: " . $response->message);
+        if ($response->response->message !== "OK") {
+            throw new Exception("Could not save fixture file [$filename]: " . $response->response->message);
         }
         return $doc;
     }
