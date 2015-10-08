@@ -132,8 +132,11 @@ class CIUnit_TestCase extends PHPUnit_Framework_TestCase
         }
         $doc = MongoDocFactory::MongoDoc($ref, $type, true);
         $response = CxUtil::getResponseObject();
-        $doc->save($response);
         $doc->setDoc($json);
+        $doc->save($response);
+        if ( $response->message !== "OK" ) {
+            throw new Exception("Could not save fixture file [$filename]: " . $response->message);
+        }
         return $doc;
     }
 
