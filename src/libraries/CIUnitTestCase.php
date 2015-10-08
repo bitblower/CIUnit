@@ -124,13 +124,15 @@ class CIUnit_TestCase extends PHPUnit_Framework_TestCase
         // Create fixture object; delete if old test left one lying around
         $this->delFixture($ref, $type);
         if (!file_exists($filename)) {
-            throw new Exception("Can not run unit test; did not find fixture JSON doc [$filename]");
+            throw new Exception("Can not add fixture; did not find fixture JSON doc [$filename]");
         }
         $json = json_decode(file_get_contents($filename));
         if ($json === null && json_last_error() !== JSON_ERROR_NONE) {
-            throw new Exception("Given JSON doc [$filename] contains invalid JSON");
+            throw new Exception("Can not add fixture; given JSON doc [$filename] contains invalid JSON");
         }
         $doc = MongoDocFactory::MongoDoc($ref, $type, true);
+        $response = CxUtil::getResponseObject();
+        $doc->save($response);
         $doc->setDoc($json);
         return $doc;
     }
