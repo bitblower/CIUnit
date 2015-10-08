@@ -147,8 +147,8 @@ class CIUnit_TestCase extends PHPUnit_Framework_TestCase
      */
     protected function delFixture($ref, $type)
     {
-        $doc = CxUtil::getCinxDoc($ref, $type);
-        if ($doc) {
+        $doc = MongoDocFactory::MongoDoc($ref, $type, true);
+        if ($doc()) {
             // Copy for use in testing
             $doc->delete();
         }
