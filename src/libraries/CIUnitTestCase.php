@@ -118,6 +118,7 @@ class CIUnit_TestCase extends PHPUnit_Framework_TestCase
      * @param $ref - A CINX/MongoDB reference (ie object db & id, or cdoc)
      * @param $type - The Type of Document: PROJECT, BOM-ITEM-QTY, etc. Will be used for template validation.
      * @returns  MongoDoc object of the newly created document.
+     * @TODO - Ugly dependence: support library using higher level support library (CxUtil, MongoDocFactory
      */
     protected function addFixture($filename, $ref, $type)
     {
@@ -144,13 +145,15 @@ class CIUnit_TestCase extends PHPUnit_Framework_TestCase
      * Remove the given fixture from the database
      * @param $ref - A CINX/MongoDB reference (ie object db & id, or cdoc)
      * @param $type - The Type of Document: PROJECT, BOM-ITEM-QTY, etc.
+     * @TODO - Ugly dependence: support library using higher level support library (CxUtil, MongoDocFactory
      */
     protected function delFixture($ref, $type)
     {
+        $response = CxUtil::getResponseObject();
         $doc = MongoDocFactory::MongoDoc($ref, $type, true);
         if ($doc()) {
             // Copy for use in testing
-            $doc->delete();
+            $doc->delete( $response );
         }
         return $doc;
     }
