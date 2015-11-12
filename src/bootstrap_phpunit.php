@@ -185,7 +185,7 @@ define('SYSDIR', trim(strrchr(trim(BASEPATH, '/'), '/'), '/'));
 
 
 // The path to the "application" folder
-if (is_dir($application_folder)) {
+if (is_dir($application_folder) && !defined('APPPATH')) {
     define('APPPATH', realpath($application_folder) . '/');
 } else {
     if (!is_dir(BASEPATH . $application_folder . '/')) {
