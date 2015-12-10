@@ -193,7 +193,9 @@ if (is_dir($application_folder) ) {
         exit("Your application folder path does not appear to be set correctly. Please open the following file and correct this: " . SELF);
     }
 
-    define('APPPATH', realpath(BASEPATH . $application_folder) . '/');
+    if (!defined('APPPATH')) {
+        define('APPPATH', realpath(BASEPATH . $application_folder) . '/');
+    }
 }
 
 // The path to the "views" folder
